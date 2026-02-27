@@ -1,36 +1,30 @@
-const express = require("express");
-const cors = require("cors");
-const OpenAI = require("openai");
-require("dotenv").config();
+import express from "express";
+import cors from "cors";
+import OpenAI from "openai";
+import "dotenv/config";
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
 
-// ✅ CORS: permite tu Vercel + local
 const allowedOrigins = [
   "http://localhost:5173",
-  process.env.FRONTEND_ORIGIN, // ej: https://tu-frontend.vercel.app
-];
+  process.env.FRONTEND_ORIGIN,
+].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, cb) => {
-      if (!origin) return cb(null, true); // Postman/curl
+      if (!origin) return cb(null, true);
       if (allowedOrigins.includes(origin)) return cb(null, true);
       return cb(new Error("Not allowed by CORS"));
     },
   })
 );
 
-// ✅ OpenAI client
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Health check
-app.get("/api/health", (req, res) => {
-  res.json({ ok: true });
-});
+app.get("/api/health", (req, res) => res.json({ ok: true }));
 
-// Chat endpoint
 app.post("/api/chat", async (req, res) => {
   try {
     const { message } = req.body;
@@ -64,8 +58,5 @@ If asked about skills, summarize frontend + backend/CS + tools.
   }
 });
 
-// ✅ Render requiere PORT dinámico
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`API running on port ${PORT}`);
-});
+app.listen(PORT, "0.0.0.0", () => console.log(`API running on port ${PORT}`));
