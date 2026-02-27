@@ -6,22 +6,16 @@ import "dotenv/config";
 const app = express();
 app.use(express.json({ limit: "1mb" }));
 
-/**
- * CORS robusto:
- * - Permite local
- * - Permite tu dominio production de Vercel
- * - Permite dominios preview de Vercel (random hashes)
- */
 const allowedOrigins = [
   "http://localhost:5173",
   "https://3d-portfolio-ten-woad.vercel.app",
-  /^https:\/\/.*\.vercel\.app$/, // previews + production (general)
+  /^https:\/\/.*\.vercel\.app$/,
 ];
 
 app.use(
   cors({
     origin: (origin, cb) => {
-      if (!origin) return cb(null, true); // Postman/curl
+      if (!origin) return cb(null, true);
       const ok = allowedOrigins.some((o) =>
         o instanceof RegExp ? o.test(origin) : o === origin
       );
@@ -32,15 +26,12 @@ app.use(
   })
 );
 
-// Preflight
-app.options("*", cors());
+app.options("/*", cors());
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Health check
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 
-// Chat endpoint
 app.post("/api/chat", async (req, res) => {
   try {
     const { message } = req.body;
