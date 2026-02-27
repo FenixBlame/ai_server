@@ -15,7 +15,7 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, cb) => {
-      if (!origin) return cb(null, true);
+      if (!origin) return cb(null, true); // Postman/curl
       const ok = allowedOrigins.some((o) =>
         o instanceof RegExp ? o.test(origin) : o === origin
       );
@@ -26,7 +26,6 @@ app.use(
   })
 );
 
-app.options("/*", cors());
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
